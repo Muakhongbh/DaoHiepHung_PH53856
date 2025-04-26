@@ -1,0 +1,54 @@
+﻿@page "/loadanh"
+
+<h3 class="mb-4">Tải Ảnh Lên</h3>
+
+@if (!string.IsNullOrEmpty(ThongBao))
+{
+    <div class="alert alert-info" role="alert">
+        @ThongBao
+    </div>
+}
+
+<div class="mb-3">
+    <InputFile accept=".jpg,.jpeg,.png,.tiff" OnChange="OnFileSelected" class="form-control" />
+</div>
+
+<div class="mb-3">
+    <button class="btn btn-success" @onclick="UploadFile">Tải Lên</button>
+</div>
+
+@code {
+    private IBrowserFile file;
+    private string ThongBao;
+
+    private async Task OnFileSelected(InputFileChangeEventArgs e)
+    {
+        file = e.File;
+        ThongBao = $"Đã chọn file: {file.Name}";
+    }
+
+    private async Task UploadFile()
+    {
+        if (file == null)
+        {
+            ThongBao = " Vui lòng chọn một file trước khi tải lên.";
+            return;
+        }
+
+        var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "img");
+
+        if (!Directory.Exists(uploadPath))
+        {
+            Directory.CreateDirectory(uploadPath);
+        }
+
+        var filePath = Path.Combine(uploadPath, file.Name);
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024).CopyToAsync(stream); // Giới hạn 10MB
+        }
+
+        ThongBao = $" Tải file {file.Name} thành công!";
+    }
+}

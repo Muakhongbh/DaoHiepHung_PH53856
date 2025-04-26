@@ -1,0 +1,118 @@
+﻿@page "/listnhanvine"
+@using Web_App.Service
+@inject INhanVienService NhanVienService
+@using API_Thi.Data
+@inject NavigationManager NavigationManager
+
+<h2 class="text-center text-primary mb-4">Danh Sách Nhân Viên </h2>
+
+<div class="card p-4 shadow-lg mb-4 bg-light rounded-4">
+    <div class="row g-3 align-items-center">
+        <div class="col-md-5">
+            <label for="seachChucVu" class="form-label fw-bold">Tìm theo Chức Vụ</label>
+            <InputText id="seachChucVu" @bind-Value="seacheChucVu" class="form-control rounded-pill shadow-sm" placeholder="Nhập chức vụ..." />
+        </div>
+        <div class="col-md-5">
+            <label for="seachLuong" class="form-label fw-bold">Tìm theo Lương</label>
+            <InputNumber id="seachLuong" @bind-Value="seacheLuong" class="form-control rounded-pill shadow-sm" placeholder="Nhập mức lương..." />
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-success w-100 rounded-pill shadow-sm" @onclick="SearchNhanVien">
+                <i class="fas fa-search"></i> Tìm kiếm
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-end mb-3">
+    <button class="btn btn-primary rounded-pill shadow-sm" @onclick="AddNhanVien">
+        <i class="fas fa-plus"></i> Thêm mới
+    </button>
+</div>
+
+<table class="table table-hover table-bordered text-center shadow-sm rounded-4 bg-white">
+    <thead class="table-primary">
+        <tr>
+            <th> ID</th>
+            <th>Họ Tên</th>
+            <th>Chức Vụ</th>
+            <th>Ngày Sinh</th>
+            <th>Ngày Tạo</th>
+            <th>Lương</th>
+            <th>Hành Động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var nhanVien in nhanViens)
+        {
+            <tr>
+                <td>@nhanVien.Id</td>
+                <td>@nhanVien.HoTen</td>
+                <td>@nhanVien.ChucVu</td>
+                <td>@nhanVien.NgaySinh</td>
+                <td>@nhanVien.CreateStast</td>
+                <td>@string.Format("{0:N0} VNĐ", nhanVien.Luong)</td>
+                <td>
+                    <button class="btn btn-warning btn-sm rounded-pill me-2" @onclick="() => EditNhanVien(nhanVien.Id)">
+                        <i class="fas fa-edit"></i> Sửa
+                    </button>
+                    <button class="btn btn-danger btn-sm rounded-pill" @onclick="() => DeleteNhanVien(nhanVien.Id)">
+                        <i class="fas fa-trash-alt"></i> Xóa
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<NhanVien> nhanViens = new();
+    private List<NhanVien> tatnhanVien = new();
+    private string seacheChucVu = "";
+    private int seacheLuong = 0;
+
+    private async Task SearchNhanVien()
+    {
+        if (string.IsNullOrEmpty(seacheChucVu) && seacheLuong == 0)
+        {
+            nhanViens = tatnhanVien;
+        }
+        else
+        {
+            var nhanVien = await NhanVienService.GetAllNhanVien();
+            nhanViens = nhanVien;
+
+            if (!string.IsNullOrEmpty(seacheChucVu))
+            {
+                nhanViens = nhanViens.Where(x => x.ChucVu.Contains(seacheChucVu, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            if (seacheLuong != 0)
+            {
+                nhanViens = nhanViens.Where(x => x.Luong == seacheLuong).ToList();
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        nhanViens = await NhanVienService.GetAllNhanVien();
+        tatnhanVien = nhanViens;
+    }
+
+    public async Task DeleteNhanVien(int id)
+    {
+        await NhanVienService.DeleteNhanVien(id);
+        nhanViens = await NhanVienService.GetAllNhanVien();
+        tatnhanVien = nhanViens;
+    }
+
+    public void EditNhanVien(int id)
+    {
+        NavigationManager.NavigateTo($"/editnhanvien/{id}");
+    }
+
+    public void AddNhanVien()
+    {
+        NavigationManager.NavigateTo("/addnhanvien");
+    }
+}

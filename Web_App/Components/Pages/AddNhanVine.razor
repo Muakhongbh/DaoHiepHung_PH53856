@@ -1,0 +1,66 @@
+﻿@page "/addnhanvien"
+@using Web_App.Service
+@inject INhanVienService NhanVienService
+@inject NavigationManager NavigationManager
+@using API_Thi.Data
+
+<h2 class="text-center text-success mb-4">Thêm Nhân Viên Mới</h2>
+
+<EditForm Model="nhanVien" OnValidSubmit="AddNhanVien" class="card p-4 shadow-lg bg-light rounded-4">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="text-danger" />
+
+    <div class="mb-4">
+        <label for="HoTen" class="form-label fw-bold">Họ Tên</label>
+        <InputText id="HoTen" @bind-Value="nhanVien.HoTen" class="form-control rounded-pill shadow-sm" placeholder="Nhập họ tên..." />
+        <ValidationMessage For="@(() => nhanVien.HoTen)" />
+    </div>
+
+    <div class="mb-4">
+        <label for="ChucVu" class="form-label fw-bold">Chức Vụ</label>
+        <InputText id="ChucVu" @bind-Value="nhanVien.ChucVu" class="form-control rounded-pill shadow-sm" placeholder="Nhập chức vụ..." />
+        <ValidationMessage For="@(() => nhanVien.ChucVu)" />
+    </div>
+
+    <div class="mb-4">
+        <label for="NgaySinh" class="form-label fw-bold">Ngày Sinh</label>
+        <InputDate id="NgaySinh" @bind-Value="nhanVien.NgaySinh" class="form-control rounded-pill shadow-sm" />
+        <ValidationMessage For="@(() => nhanVien.NgaySinh)" />
+    </div>
+
+    <div class="mb-4">
+        <label for="CreateStast" class="form-label fw-bold">Ngày Tạo</label>
+        <InputDate id="CreateStast" @bind-Value="nhanVien.CreateStast" class="form-control rounded-pill shadow-sm" />
+        <ValidationMessage For="@(() => nhanVien.CreateStast)" />
+    </div>
+
+    <div class="mb-4">
+        <label for="Luong" class="form-label fw-bold">Lương</label>
+        <InputNumber id="Luong" @bind-Value="nhanVien.Luong" class="form-control rounded-pill shadow-sm" placeholder="Nhập lương..." />
+        <ValidationMessage For="@(() => nhanVien.Luong)" />
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+        <button type="submit" class="btn btn-success rounded-pill px-4 shadow-sm">
+            <i class="fas fa-save"></i> Lưu
+        </button>
+        <button type="button" class="btn btn-secondary rounded-pill px-4 shadow-sm" @onclick="BackToList">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </button>
+    </div>
+</EditForm>
+
+@code {
+    private NhanVien nhanVien = new();
+
+    private async Task AddNhanVien()
+    {
+        await NhanVienService.CreateNhanVien(nhanVien);
+        NavigationManager.NavigateTo("/listnhanvine");
+    }
+
+    private void BackToList()
+    {
+        NavigationManager.NavigateTo("/listnhanvine");
+    }
+}
